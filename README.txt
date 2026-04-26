@@ -1,4 +1,4 @@
-Algunos archivos csv por su gran tamaó no se pueden subir a GitHub, es el caso de:
+Algunos archivos csv por su gran tamaño no se pueden subir a GitHub, es el caso de:
 
 /proyecto/datos/procesados/IDS2017_concatenado.csv: https://drive.google.com/file/d/1TB6tYxG4a3bBYA-S-1mN3Mk54jaCOH9V/view?usp=sharing
 /proyecto/datos/procesados/IDS2017_definitivo.csv: https://drive.google.com/file/d/1svcd7UyDuN766_orJtzz-GRr4AvjOo11/view?usp=sharing
