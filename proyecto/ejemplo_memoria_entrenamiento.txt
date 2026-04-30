@@ -1,0 +1,260 @@
+[Parallel(n_jobs=-1)]: Using backend ThreadingBackend with 4 concurrent workers.
+building tree 1 of 100
+building tree 2 of 100
+building tree 3 of 100
+building tree 4 of 100
+building tree 5 of 100
+building tree 6 of 100
+building tree 7 of 100
+building tree 8 of 100
+building tree 9 of 100
+building tree 10 of 100
+building tree 11 of 100
+building tree 12 of 100
+building tree 13 of 100
+building tree 14 of 100
+building tree 15 of 100
+building tree 16 of 100
+building tree 17 of 100
+building tree 18 of 100
+building tree 19 of 100
+building tree 20 of 100
+building tree 21 of 100
+building tree 22 of 100
+building tree 23 of 100
+building tree 24 of 100
+building tree 25 of 100
+building tree 26 of 100
+building tree 27 of 100
+building tree 28 of 100
+building tree 29 of 100
+building tree 30 of 100
+building tree 31 of 100
+building tree 32 of 100
+building tree 33 of 100
+building tree 34 of 100
+building tree 35 of 100
+building tree 36 of 100
+building tree 37 of 100
+[Parallel(n_jobs=-1)]: Done  33 tasks      | elapsed:  3.1min
+building tree 38 of 100
+building tree 39 of 100
+building tree 40 of 100
+building tree 41 of 100
+building tree 42 of 100
+building tree 43 of 100
+building tree 44 of 100
+building tree 45 of 100
+building tree 46 of 100
+building tree 47 of 100
+building tree 48 of 100
+building tree 49 of 100
+building tree 50 of 100
+building tree 51 of 100
+building tree 52 of 100
+building tree 53 of 100
+building tree 54 of 100
+building tree 55 of 100
+building tree 56 of 100
+building tree 57 of 100
+building tree 58 of 100
+building tree 59 of 100
+building tree 60 of 100
+building tree 61 of 100
+building tree 62 of 100
+building tree 63 of 100
+building tree 64 of 100
+building tree 65 of 100
+building tree 66 of 100
+building tree 67 of 100
+building tree 68 of 100
+building tree 69 of 100
+building tree 70 of 100
+building tree 71 of 100
+building tree 72 of 100
+building tree 73 of 100
+building tree 74 of 100
+building tree 75 of 100
+building tree 76 of 100
+building tree 77 of 100
+building tree 78 of 100
+building tree 79 of 100
+building tree 80 of 100
+building tree 81 of 100
+building tree 82 of 100
+building tree 83 of 100
+building tree 84 of 100
+building tree 85 of 100
+building tree 86 of 100
+building tree 87 of 100
+building tree 88 of 100
+building tree 89 of 100
+building tree 90 of 100
+building tree 91 of 100
+building tree 92 of 100
+building tree 93 of 100
+building tree 94 of 100
+building tree 95 of 100
+building tree 96 of 100
+building tree 97 of 100
+building tree 98 of 100
+building tree 99 of 100
+building tree 100 of 100
+[Parallel(n_jobs=-1)]: Done 100 out of 100 | elapsed:  8.6min finished
+
+ Entrenamiento completado en 521.6 segundos
+
+[Parallel(n_jobs=4)]: Using backend ThreadingBackend with 4 concurrent workers.
+[Parallel(n_jobs=4)]: Done  33 tasks      | elapsed:    2.1s
+[Parallel(n_jobs=4)]: Done 100 out of 100 | elapsed:    6.5s finished
+[Parallel(n_jobs=4)]: Using backend ThreadingBackend with 4 concurrent workers.
+[Parallel(n_jobs=4)]: Done  33 tasks      | elapsed:    2.1s
+[Parallel(n_jobs=4)]: Done 100 out of 100 | elapsed:    5.9s finished
+
+=== EXACTITUD (ACCURACY) ===
+0.9873 (98.73%)
+
+=== PRECISIÓN (PPV) ===
+0.9886 (98.86%)
+
+=== EXHAUSTIVIDAD (RECALL / PD) ===
+0.9873 (98.73%)
+
+=== F1 SCORE ===
+0.9877 (98.77%)
+
+=== MATRIZ DE CONFUSIÓN ===
+[[    51      0      0      0      0      7      0      0      0      0
+      19      0      0      0      0      0      0      0      0      0
+       0      0      0      0]
+ [    39 418092      2    144     11     21      6    107     48      2
+     166      0   1201     20      0      0    174    170      0     30
+       0      0      0      1]
+ [     0      0     55      0      0      0      0      0      0      0
+      17      0     13      1      0      0      0      4      0      0
+       0      0      0      0]
+ [     0     37      0    356      0      0      0      0      0      0
+       0      0      0      0      0      0      0      0      0      0
+       0      0      0      0]
+ [     0     14      0      0  25586      0      0      6      0      0
+       0      0      0      0      0      0      0      0      0      0
+       0      0      0      0]
+ [     7      3      2      0      0    331      0      0      0      0
+     305      0    169     16      0      0      0     36      0     23
+       0      0      0      1]
+ [     0      2      0      0      0      0   2052      3      2      0
+       0      0      0      0      0      0      0      0      0      0
+       0      0      0      0]
+ [     0     22      0      0      1      0      1  46000      0      0
+       0      0      0      0      0      0      1      0      0      0
+       0      0      0      0]
+ [     0      4      0      0      0      0      0      0   1090      6
+       0      0      0      0      0      0      0      0      0      0
+       0      0      0      0]
+ [     0      5      0      0      0      0      0      0      3   1150
+       0      0      0      0      0      0      0      0      0      0
+       1      0      0      0]
+ [    53      6      7      0      0    137      0      0      0      0
+    4653      0    871     61      0      0      0    355      0     37
+       0      0      0     10]
+ [     0      3      0      0      0      0      0      0      0      0
+       0   1585      0      0      0      0      0      0      0      0
+       0      0      0      0]
+ [     6     14      0      0      0     53      0      0      0      0
+     295      0   5013     56      0      0      0    348      0    130
+       0      0      0      8]
+ [     0      0      0      0      0     15      0      0      0      0
+      61      0    104    699      0      0      0     28      0     17
+       0      0      0      3]
+ [     0      0      0      0      0      0      0      0      0      0
+       0      0      0      0      2      0      0      0      0      0
+       0      0      0      0]
+ [     0      3      0      0      0      0      0      0      0      0
+       0      0      0      0      0      4      0      0      0      0
+       0      0      0      0]
+ [     0      4      0      0      0      0      0      6      0      0
+       0      0      0      0      0      0  31774      0      0      0
+       0      0      2      0]
+ [     1      5      3      0      0     29      0      0      0      0
+     303      0    591      4      0      0      0   2392      0     19
+       0      0      0      0]
+ [     0      2      0      0      0      0      0      0      0      0
+       0      0      0      0      0      0      0      0   1178      0
+       0      0      0      0]
+ [     0      1      0      0      0     11      0      0      0      0
+      51      0    164      8      0      0      0     31      0    154
+       0      0      0      0]
+ [     0      3      0      0      0      0      0      0      0      0
+       0      0      0      0      0      0      0      0      0      0
+     230      0     68      0]
+ [     0      2      0      0      0      0      1      0      0      0
+       0      0      0      0      0      0      0      0      0      0
+       0      1      0      0]
+ [     0      9      0      0      0      0      0      0      0      0
+       0      0      0      0      0      0      0      0      0      0
+      60      0     61      0]
+ [     0      0      0      0      0      0      0      0      0      0
+       8      0     18      0      0      0      0      4      0      0
+       0      0      0     19]]
+
+=== REPORTE DETALLADO ===
+                            precision    recall  f1-score   support
+
+                  Analysis       0.32      0.66      0.44        77
+                    BENIGN       1.00      0.99      1.00    420234
+                  Backdoor       0.80      0.61      0.69        90
+                       Bot       0.71      0.91      0.80       393
+                      DDoS       1.00      1.00      1.00     25606
+                       DoS       0.55      0.37      0.44       893
+             DoS GoldenEye       1.00      1.00      1.00      2059
+                  DoS Hulk       1.00      1.00      1.00     46025
+          DoS Slowhttptest       0.95      0.99      0.97      1100
+             DoS slowloris       0.99      0.99      0.99      1159
+                  Exploits       0.79      0.75      0.77      6190
+               FTP-Patator       1.00      1.00      1.00      1588
+                   Fuzzers       0.62      0.85      0.71      5923
+                   Generic       0.81      0.75      0.78       927
+                Heartbleed       1.00      1.00      1.00         2
+              Infiltration       1.00      0.57      0.73         7
+                  PortScan       0.99      1.00      1.00     31786
+            Reconnaissance       0.71      0.71      0.71      3347
+               SSH-Patator       1.00      1.00      1.00      1180
+                 Shellcode       0.38      0.37      0.37       420
+  Web Attack   Brute Force       0.79      0.76      0.78       301
+Web Attack   Sql Injection       1.00      0.25      0.40         4
+          Web Attack   XSS       0.47      0.47      0.47       130
+                     Worms       0.45      0.39      0.42        49
+
+                  accuracy                           0.99    549490
+                 macro avg       0.81      0.77      0.77    549490
+              weighted avg       0.99      0.99      0.99    549490
+
+
+=== IMPORTANCIA DE VARIABLES ===
+Packet Length Max             0.081348
+Bwd Init Win Bytes            0.077061
+Total Length of Fwd Packet    0.074768
+Flow Duration                 0.066490
+Fwd IAT Total                 0.062595
+Bwd Packets/s                 0.057892
+Fwd Packet Length Std         0.051647
+Total Length of Bwd Packet    0.051294
+FWD Init Win Bytes            0.042436
+Flow Bytes/s                  0.041543
+Bwd Packet Length Std         0.041358
+Fwd IAT Min                   0.039615
+Fwd Seg Size Min              0.036418
+Fwd Header Length             0.035329
+Flow IAT Min                  0.032121
+Total Fwd Packet              0.031423
+PSH Flag Count                0.030669
+Total Bwd packets             0.029248
+Bwd IAT Total                 0.028131
+Bwd Packet Length Min         0.023010
+Bwd IAT Min                   0.021176
+Bwd IAT Std                   0.019365
+Fwd Packet Length Min         0.017487
+Down/Up Ratio                 0.007577
+dtype: float64
+
+FIN
