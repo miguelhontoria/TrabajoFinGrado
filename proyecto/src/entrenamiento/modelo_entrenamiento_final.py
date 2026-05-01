@@ -127,8 +127,8 @@ for clase, umbral in sorted(umbrales_confianza.items()):
 joblib.dump(modelo, os.path.join(RUTA_MODELOS, "modelo_random_forest.pkl"))
 print("\n Modelo entrenado guardado")
 
-joblib.dump(list(X.columns), os.path.join(RUTA_MODELOS, "nombres_atributos.pkl"))
-print(f"\n {len(X.columns)} Nombres de los atributos en orden guardados")
+joblib.dump(list(X.columns), os.path.join(RUTA_MODELOS, "nombres_caracteristicas.pkl"))
+print(f"\n {len(X.columns)} Nombres de las características en orden guardados")
 
 joblib.dump(list(clases), os.path.join(RUTA_MODELOS, "clases.pkl"))
 print(f"\n {len(clases)} clases: {list(clases)} guardadas")
