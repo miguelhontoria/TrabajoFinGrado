@@ -4,3 +4,6 @@ IDS2017_limpio.csv
 Data.csv
 Wednesday-workingHours.pcap_ISCX.csv
 Tuesday-WorkingHours.pcap_ISCX.csv
+modelo_random_forest.pkl
+__pycache__/
+*.pyc
