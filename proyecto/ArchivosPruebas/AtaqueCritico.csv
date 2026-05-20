@@ -1,0 +1,2 @@
+Total Fwd Packet,Total Bwd packets,Flow Bytes/s,Bwd Packets/s,FWD Init Win Bytes,Bwd Init Win Bytes,Flow Duration,Flow IAT Min,Fwd IAT Min,Fwd IAT Total,Bwd IAT Min,Bwd IAT Std,Bwd IAT Total,Total Length of Fwd Packet,Total Length of Bwd Packet,Fwd Packet Length Min,Fwd Packet Length Std,Bwd Packet Length Min,Bwd Packet Length Std,Packet Length Max,Fwd Seg Size Min,PSH Flag Count,Down/Up Ratio,Fwd Header Length,Label
+2,0,12000000.0,0.0,0,0,9.0,9.0,9.0,9.0,0.0,0.0,0.0,108.0,0.0,54.0,0.0,0.0,0.0,54.0,8,0,0.0,16,Shellcode
