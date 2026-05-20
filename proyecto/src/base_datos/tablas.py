@@ -1,25 +1,24 @@
 """
 Módulo de gestión de la base de datos del simulador SOC.
 
-Incluye las operaciones necesarias para preparar y alimentar las tablas
-principales del sistema: flujos (datos originales normalizados) y resultados
-(predicciones generadas por el IDS y enriquecidas por el SIEM).
+Incluye las operaciones necesarias para preparar y alimentar las tablas del sistema: flujos (datos originales normalizados) y 
+resultados (predicciones generadas por el IDS y enriquecidas por el SIEM).
 
 Funciones principales:
     - parsear_flujos(): valida y normaliza los flujos de red antes del análisis.
-    - crear_tablas(): crea la estructura de la base de datos (flujos y resultados).
+    - generar_id_lote(): genera identificadores únicos para cada lote procesado.
+    - crear_tablas(): crea la estructura de la base de datos (flujos y resultados), además de índices útiles para las consultas.
     - insertar_flujos(): inserta los flujos procesados y devuelve sus id_flujo.
     - insertar_resultados(): almacena las predicciones y metadatos del análisis.
-    - generar_id_lote(): genera identificadores únicos para cada lote procesado.
 
-Este módulo actúa como capa de persistencia del sistema, garantizando que los
-datos se almacenan de forma consistente y que pueden ser consultados por los
-módulos de análisis, histórico y ticketing.
+Este módulo actúa como capa de persistencia del sistema, garantizando que los datos se almacenan de forma consistente y que pueden ser 
+consultados por los módulos de análisis, histórico y ticketing.
 """
 
 import sqlite3
 import time
 import numpy as np
+import pandas as pd
 
 
 COLUMNAS_MODELO = [
@@ -54,37 +53,44 @@ COLUMNAS_SQL = [
     for col in COLUMNAS_MODELO
 ]
 
+
 def parsear_flujos(df_entrada):
     """
-    Parsea y normaliza un DataFrame de flujos de red.
- 
+    Parsea y normaliza un DataFrame (archivo CSV/JSON de entrada) de flujos de red.
     Pasos:
-        1. Elimina espacios en nombres de columnas
-        2. Comprueba que existen las 24 columnas obligatorias
-        3. Selecciona y reordena solo esas 24 columnas
-        4. Elimina filas con NaN o valores infinitos
-        5. Aplica recorte de valores atípicos (percentiles 0.1% y 99.9%)
-           igual que en la fase de limpieza del entrenamiento
+        1.Se comprueba si el lote está vacío.
+        2.Elimina espacios en nombres de columnas
+        3.Comprueba que existen las 24 columnas obligatorias
+        4.Selecciona y reordena únicamente las columnas utilizadas por el modelo
+        5.Convierte todos los valores a formato numérico (valores inválidos como strings se convierten en NaN)
+        6.Sustituye valores infinitos por NaN
+        7.Elimina filas con valores inválidos, NaN o infinitos
+        8.Aplica recorte de valores atípicos mediante percentiles 0.1% y 99.9%, igual que en la fase de entrenamiento
  
-    Returns:
-        df_limpio   → DataFrame listo para el modelo
-        filas_descartadas → lista de índices eliminados con motivo
+    Devuelve:
+        df_limpio -> DataFrame listo para el modelo
+        filas_descartadas -> lista de índices eliminados con motivo
+        mensaje_descartes -> mensaje con las filas descartadas y el por qué
  
     Raises:
-        ValueError si faltan columnas obligatorias
+        ValueError si archivo vacío, faltan columnas obligatorias o si no tiene datos válidos
     """
  
     df = df_entrada.copy()
+
+    if df is None or df.empty or len(df.columns) == 0:
+        raise ValueError("El archivo está vacío.")
  
     df.columns = df.columns.str.strip()
  
     faltantes = [col for col in COLUMNAS_MODELO if col not in df.columns]
     if faltantes:
-        raise ValueError(
-            f"El archivo no contiene todas las características requeridas. Faltan las siguientes columnas: {faltantes}"
-        )
+        raise ValueError(f"El archivo no contiene todas las características requeridas. Faltan las siguientes columnas: {faltantes}")
  
     df = df[COLUMNAS_MODELO].copy()
+
+    for col in df.columns:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
 
     df.replace([np.inf, -np.inf], np.nan, inplace=True)
     filas_antes = len(df)
@@ -93,12 +99,15 @@ def parsear_flujos(df_entrada):
     df = df[~mask_nan].copy()
     df.reset_index(drop=True, inplace=True)
     filas_despues = len(df)
+
+    if len(df) == 0:
+        raise ValueError("El archivo no contiene datos válidos.")
  
     filas_descartadas = indices_descartados
     mensaje_descartes = None
     if indices_descartados:
         mensaje_descartes = (
-            f"Se descartaron {filas_antes - filas_despues} fila(s) por contener valores NaN o infinitos.\n"
+            f"Se descartaron {filas_antes - filas_despues} fila(s) por contener datos inválidos, NaN o infinitos.\n"
             f"Filas descartadas: {indices_descartados}"
         )
 
@@ -109,11 +118,11 @@ def parsear_flujos(df_entrada):
  
     return df, filas_descartadas, mensaje_descartes
 
+
 def generar_id_lote():
     """
     No se llama dentro de tablas.py. Se llama desde app.py, el resultado se pasa como parámetro. Flujo en app.py sería:
-    id_lote = tablas.generar_id_lote() #genera "lote_20250503_142301"       ids_flujo = tablas.insertar_flujos(df_limpio, id_lote)
-    tablas.insertar_resultados(df_resultados, id_lote)  # mismo id_lote para enlazar
+    id_lote = tablas.generar_id_lote() #genera "lote_20250503_142301" ids_flujo = tablas.insertar_flujos(df_limpio, id_lote, db_path=DB_PATH)
     """
     return f"lote_{time.strftime('%d%m%Y_%H%M%S')}"
 
@@ -176,7 +185,6 @@ def crear_tablas(db_path="soc.db"):
             CREATE INDEX IF NOT EXISTS idx_resultados_fecha
             ON resultados (fecha_analisis)
         """)
-        
         cursor.execute("""
             CREATE INDEX IF NOT EXISTS idx_flujos_lote
             ON flujos (id_lote)
@@ -188,11 +196,14 @@ def crear_tablas(db_path="soc.db"):
 
         conn.commit()
 
-
+try:
+    import streamlit as st
+except:
+    st = None
+    
 def insertar_flujos(df_limpio, id_lote, db_path="soc.db"):
     """
-    Inserta el DataFrame de flujos ya normalizados en la tabla flujos.
-    Devuelve la lista de id_flujo generados para enlazarlos con resultados.
+    Inserta el DataFrame de flujos ya normalizados en la tabla flujos. Devuelve la lista de id_flujo generados para enlazarlos con resultados.
     """
     crear_tablas(db_path)
  
@@ -204,7 +215,9 @@ def insertar_flujos(df_limpio, id_lote, db_path="soc.db"):
     ]
  
     df_sql.insert(0, "id_lote", id_lote)
-    df_sql.insert(1, "fecha_ingesta", time.strftime("%Y-%m-%d %H:%M:%S"))
+    fecha_ingesta = st.session_state.get("fecha_ingesta_actual", time.strftime("%Y-%m-%d %H:%M:%S"))
+
+    df_sql.insert(1, "fecha_ingesta", fecha_ingesta)
  
     with conectar(db_path) as conn:
         df_sql.to_sql("flujos", conn, if_exists="append", index=False)
@@ -224,23 +237,17 @@ def insertar_resultados(df_resultados, db_path="soc.db"):
     """
     Inserta los resultados completos del análisis en la tabla resultados.
  
-    df_resultados debe contener las columnas:
-        id_flujo, id_lote, prediccion, confianza, baja_confianza,
-        severidad, recomendacion
+    df_resultados debe contener las columnas: id_flujo, id_lote, prediccion, confianza, baja_confianza, severidad y recomendacion.
     """
     crear_tablas(db_path)
  
     df_sql = df_resultados.copy()
     df_sql["fecha_analisis"] = time.strftime("%Y-%m-%d %H:%M:%S")
-    df_sql["revisado"]       = 0
+    df_sql["revisado"] = 0
     df_sql["notas_analista"] = None
  
-    columnas = [
-        "id_flujo", "id_lote", "fecha_analisis",
-        "prediccion", "confianza", "baja_confianza",
-        "severidad", "recomendacion",
-        "revisado", "notas_analista",
-    ]
+    columnas = ["id_flujo", "id_lote", "fecha_analisis", "prediccion", "confianza", "baja_confianza", "severidad", "recomendacion",
+        "revisado", "notas_analista",]
  
     df_sql = df_sql[columnas]
  

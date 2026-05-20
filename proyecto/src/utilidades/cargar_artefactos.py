@@ -1,5 +1,5 @@
 """
-Módulo de carga de artefactos generados durante el entrenamiento del modelo.
+Módulo de carga de artefactos generados durante el entrenamiento del modelo. 
 Solo se cargan una vez (al iniciar la aplicación) y se reutilizan en memoria.
 """
 
@@ -7,87 +7,81 @@ import os
 import joblib
 
 
-RUTA_BASE = os.path.join(
-    os.path.dirname(__file__),  
-    "..", "..",                  
-    "info_modelo"
-)
+RUTA_BASE = os.path.join(os.path.dirname(__file__), "..", "..", "info_modelo")
 RUTA_BASE = os.path.abspath(RUTA_BASE)
  
-_cache = {} 
-def _cargar(nombre_archivo):
+
+cache = {} 
+def cargar(nombre_archivo):
     """Carga un archivo pkl desde la carpeta info_modelo."""
-    if nombre_archivo in _cache:
-        return _cache[nombre_archivo]
+    if nombre_archivo in cache:
+        return cache[nombre_archivo]
     ruta = os.path.join(RUTA_BASE, nombre_archivo)
+
     if not os.path.exists(ruta):
-        raise FileNotFoundError(
-            f"Artefacto no encontrado: {ruta}\n"
-        )
+        raise FileNotFoundError(f"Artefacto no encontrado: {ruta}\n")
+    
     obj = joblib.load(ruta)
-    _cache[nombre_archivo] = obj
+    cache[nombre_archivo] = obj
     return obj
 
 
 def cargar_modelo():
     """
-    Carga el modelo RandomForest entrenado.
-    Usado por: ids.py
+    Carga el modelo RandomForest entrenado. Usado por: ids.py
     """
-    return _cargar("modelo_random_forest.pkl")
+    return cargar("modelo_random_forest.pkl")
  
 def cargar_nombres_caracteristicas():
     """
-    Carga la lista de 24 nombres de features en el orden exacto que espera el modelo.
-    Usado por: ids.py (para validar y reordenar columnas antes de predecir)
+    Carga la lista de 24 nombres de features en el orden exacto que espera el modelo. 
+    Usado por: ids.py (para validar y reordenar columnas antes de predecir).
     """
-    return _cargar("nombres_caracteristicas.pkl")
+    return cargar("nombres_caracteristicas.pkl")
  
 def cargar_clases():
     """
-    Carga la lista de nombres de clases en el orden interno del modelo.
-    Posición i corresponde a la columna i de predict_proba().
+    Carga la lista de nombres de clases en el orden interno del modelo. Posición i corresponde a la columna i de predict_proba().
     """
-    return _cargar("clases.pkl")
+    return cargar("clases.pkl")
  
 def cargar_umbrales_confianza():
     """
-    Carga el diccionario {clase: umbral_minimo_confianza}.
-    Usado por: ids.py (para calcular el flag baja_confianza)
+    Carga el diccionario {clase: umbral_minimo_confianza}. Usado por: ids.py (para calcular el flag baja_confianza).
     """
-    return _cargar("umbrales_confianza.pkl")
+    return cargar("umbrales_confianza.pkl")
  
 def cargar_distribucion_clases():
     """
-    Carga el diccionario con la distribución de clases del dataset completo.
+    Carga el diccionario con la distribución de clases del dataset completo. Se usa en /interfaz/hisotrico.py para el gráfico circular.
     """
-    return _cargar("distribucion_clases.pkl")
+    return cargar("distribucion_clases.pkl")
  
 def cargar_importancia_caracteristicas():
     """
-    Carga el diccionario {feature: importancia_gini}.
+    Carga el diccionario con la importancia de las 24 características durante el entrenamiento. 
+    Se usa en /interfaz/ticketing.py para el gráfico de barras.
     """
-    return _cargar("importancia_caracteristicas.pkl")
+    return cargar("importancia_caracteristicas.pkl")
  
 def cargar_info_modelo():
     """
-    Carga el diccionario con metadatos y métricas del entrenamiento:
-    parámetros del modelo, fecha, tiempo, exactitud, F1, número de clases, etc.
+    Carga el diccionario con metadatos y métricas del entrenamiento: 
+    parámetros del modelo, fecha, tiempo, exactitud, F1, número de clases, etc. Se usa en app.py en la pantalla principal.
     """
-    return _cargar("info_modelo.pkl")
+    return cargar("info_modelo.pkl")
  
 def cargar_matriz_confusion():
     """
     Carga la matriz de confusión del conjunto test como array numpy.
     """
-    return _cargar("matriz_confusion.pkl")
+    return cargar("matriz_confusion.pkl")
  
 def cargar_reporte_completo():
     """
-    Carga el classification report completo como diccionario.
-    Incluye precisión, recall y F1 por clase, macro avg y weighted avg.
+    Carga el classification report completo como diccionario. Incluye precisión, recall y F1 por clase, macro avg y weighted avg.
     """
-    return _cargar("reporte_completo.pkl")
+    return cargar("reporte_completo.pkl")
  
  
 def cargar_artefactos_ids():
@@ -96,8 +90,7 @@ def cargar_artefactos_ids():
         - modelo
         - nombres_caracteristicas
         - umbrales_confianza
-    Devuelve una tupla en ese orden para facilitar el desempaquetado:
-        modelo, nombres, umbrales = cargar_artefactos_ids()
+    Devuelve una tupla en ese orden para facilitar el desempaquetado: modelo, nombres, umbrales = cargar_artefactos_ids()
     """
     return (
         cargar_modelo(),

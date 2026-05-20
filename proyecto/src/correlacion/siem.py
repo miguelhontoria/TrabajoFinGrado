@@ -1,14 +1,8 @@
 """
 Módulo SIEM — Correlación basada en reglas multicriterio.
 
-Recibe:
-    - Las predicciones generadas por ids.py
-    - El DataFrame limpio con las características originales
-
-Devuelve:
-    - Un DataFrame enriquecido con:
-        severidad
-        recomendacion
+Recibe las predicciones generadas por ids.py y el DataFrame limpio con las características originales y devuelve un DataFrame enriquecido con
+severidad y recomendacion.
 """
 
 import pandas as pd
@@ -46,9 +40,7 @@ PESOS_ATAQUE = {
     "Worms": 5,
 }
 
-
 RECOMENDACIONES_ATAQUE = {
- 
     "Reconnaissance": (
         "Registrar IP origen y correlacionar con eventos anteriores. Considerar bloqueo preventivo si el comportamiento persiste. "
         "Aumentar nivel de vigilancia ante futuros eventos de la misma fuente."
@@ -177,32 +169,19 @@ RECOMENDACIONES_ATAQUE = {
     ),
 }
 
-
 RECOMENDACIONES_SEVERIDAD = {
-    "BAJA": (
-        "No es un evento prioritario, aunque se recomienda mantener monitorización básica."
-    ),
-
-    "MEDIA": (
-        "Requiere revisión por parte del analista para descartar compromiso real."
-    ),
-
-    "ALTA": (
-        "Se recomienda actuación inmediata para evitar impacto sobre otros sistemas."
-    ),
-
-    "CRITICA": (
-        "Incidente crítico. Activar protocolo de respuesta a incidentes de forma inmediata."
-    ),
+    "BAJA": ("No es un evento prioritario, aunque se recomienda mantener monitorización básica."),
+    "MEDIA": ("Requiere revisión por parte del analista para descartar compromiso real."),
+    "ALTA": ("Se recomienda actuación inmediata para evitar impacto sobre otros sistemas."),
+    "CRITICA": ("Incidente crítico. Activar protocolo de respuesta a incidentes de forma inmediata."),
 }
 
 
 def generar_recomendacion(fila, severidad):
     """
-    Se genera la recomendación de cada flujo tanto para los 5 casos especiales posibles como para los casos base.
+    Se genera la recomendación de cada flujo tanto para los 3 casos especiales posibles como para los casos base.
     """
     ataque = fila["prediccion"]
-    baja = fila["baja_confianza"]
 
     if severidad == "INFO" and ataque == "BENIGN":
         return "Tráfico legítimo. Es un verdadero negativo. Se puede ignorar."
@@ -224,7 +203,6 @@ def calcular_severidad(puntuacion):
     """
     Convierte la puntuación multicriterio en severidad textual.
     """
-
     if puntuacion == 0:
         return "INFO"
 
@@ -245,99 +223,65 @@ def correlacionar_alertas(df_predicciones, df_limpio):
     Enriquece las predicciones IDS con severidad y recomendaciones.
 
     Parámetros:
-        df_predicciones → salida generada por ids.py
-        df_limpio       → DataFrame original de características
+        df_predicciones -> salida generada por ids.py
+        df_limpio -> DataFrame original de características
+
+    Proceso:
+        1.Para dar robustez se comprueba que los dos parámetros de entrada tengan el mismo tamaño, si no salta un ValueError.
+        2.Se concatenan en un solo DataFrame los dos parámetros de entrada y se cuenta el número de ataques (flujos predichos distinto de BENIGN)
+        3.A cada flujo se le suma a su puntuación su peso base dependiendo de la variable prediccion.
+        4.Se calculan los límites para el segundo bloque de las caracterísiticas del flujo.
+        5.Si el flag baja_confianza es 1 se suma/resta lo estipulado en el tercer bloque.
+        6.Por último, si no es BENIGN la predicción, se calcula el contexto del cuarto bloque.
+        7.Para cada fila dependiendo de la puntuacion final y de la prediccion se calculasu severidad y se genera una recomendación.
 
     Devuelve:
-        DataFrame enriquecido con:
-            severidad
-            recomendacion
+        DataFrame enriquecido con: severidad y recomendacion
     """
-
     if len(df_predicciones) != len(df_limpio):
-        raise ValueError(
-            "df_predicciones y df_limpio deben tener el mismo número de filas"
-        )
+        raise ValueError("df_predicciones y df_limpio deben tener el mismo número de filas")
 
-    df = pd.concat(
-        [
-            df_predicciones.reset_index(drop=True),
-            df_limpio.reset_index(drop=True),
-        ],
-        axis=1
-    )
+    df = pd.concat([df_predicciones.reset_index(drop=True), df_limpio.reset_index(drop=True),], axis=1)
 
     puntuaciones = []
-    
 
     ataques = df[df["prediccion"] != "BENIGN"].copy()
 
     conteo_ataques = ataques["prediccion"].value_counts()
 
-
     for _, fila in df.iterrows():
-
         puntuacion = 0
-
         ataque = fila["prediccion"]
-
         puntuacion += PESOS_ATAQUE.get(ataque, 1)
 
         if ataque != "BENIGN":
-
-            if (
-                fila["Flow Bytes/s"] > 1_000_000
-                or (
-                    fila["Total Fwd Packet"]
-                    + fila["Total Bwd packets"]
-                ) > 10_000
-            ):
+            if (fila["Flow Bytes/s"] > 1_000_000 or (fila["Total Fwd Packet"] + fila["Total Bwd packets"]) > 10_000):
                 puntuacion += 1
 
-            if (
-                fila["Flow Duration"] < 1000
-                or fila["Bwd IAT Std"] < 0.01
-            ):
+            if (fila["Flow Duration"] < 1000 or fila["Bwd IAT Std"] < 0.01):
                 puntuacion += 1
 
-            if (
-                fila["Packet Length Max"] > 1400
-                and fila["Fwd Packet Length Std"] > 200
-            ):
+            if (fila["Packet Length Max"] > 1400 and fila["Fwd Packet Length Std"] > 200):
                 puntuacion += 1
 
-            if (
-                fila["PSH Flag Count"] > 10
-                or fila["Down/Up Ratio"] > 10
-                or fila["FWD Init Win Bytes"] <= 0
-            ):
+            if (fila["PSH Flag Count"] > 10 or fila["Down/Up Ratio"] > 10 or fila["FWD Init Win Bytes"] <= 0):
                 puntuacion += 1
 
         if fila["baja_confianza"] == 1:
-
             if ataque == "BENIGN":
                 puntuacion += 2
-
             else:
                 puntuacion -= 1
 
         if ataque != "BENIGN":
-
             cantidad = conteo_ataques.get(ataque, 0)
-
             total_ataques = len(ataques)
 
             if total_ataques > 0:
-
                 porcentaje = cantidad / total_ataques
-
                 peso = PESOS_ATAQUE.get(ataque, 1)
 
-                if (
-                    porcentaje >= 0.40
-                    and cantidad >= 5
-                    and peso >= 2
-                ):
+                if (porcentaje >= 0.40 and cantidad >= 5 and peso >= 2):
                     puntuacion += 1
 
         puntuaciones.append(max(0, puntuacion))
@@ -349,15 +293,7 @@ def correlacionar_alertas(df_predicciones, df_limpio):
         for (_, fila), sev in zip(df.iterrows(), df["severidad"])
     ]
 
-    columnas_finales = [
-        "id_flujo",
-        "id_lote",
-        "prediccion",
-        "confianza",
-        "baja_confianza",
-        "severidad",
-        "recomendacion",
-    ]
+    columnas_finales = ["id_flujo", "id_lote", "prediccion", "confianza", "baja_confianza", "severidad", "recomendacion",]
 
     return df[columnas_finales]
 
