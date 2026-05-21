@@ -327,7 +327,7 @@ if st.session_state.pantalla == "principal":
 
                 <div style="flex:1;">
                     <div style="margin-bottom:0.45rem;color:#8b9ab0;">
-                        Nº atributos: <span style="color:#e8ecf2;font-weight:500;">{n_features}</span>
+                        Nº características: <span style="color:#e8ecf2;font-weight:500;">{n_features}</span>
                     </div>
 
                     <div style="margin-bottom:0.45rem;color:#8b9ab0;">

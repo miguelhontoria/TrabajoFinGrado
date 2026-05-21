@@ -22,8 +22,8 @@ def grafico_distribucion():
     distribucion = cargar_distribucion_clases()
 
     etiquetas = list(distribucion.keys())
-    valores   = list(distribucion.values())
-    total     = sum(valores)
+    valores = list(distribucion.values())
+    total = sum(valores)
 
     umbral = total * 0.005
 
@@ -202,9 +202,11 @@ def render():
         )
 
         with st.expander("Filtros de flujos", expanded=False):
-            fc1, fc2, fc3, fc4 = st.columns(4)
+            fc1, fc2 = st.columns(2)
             f_id_flujo = fc1.number_input("ID flujo", min_value=1, step=1, value=None, placeholder="ID", key="hf_id_flujo")
             f_id_lote = fc2.text_input("ID lote", key="hf_id_lote")
+
+            fc3, fc4 = st.columns(2)
             f_fecha_desde = fc3.text_input("Desde (YYYY-MM-DD HH:MM:SS)", key="hf_desde")
             f_fecha_hasta = fc4.text_input("Hasta (YYYY-MM-DD HH:MM:SS)", key="hf_hasta")
 

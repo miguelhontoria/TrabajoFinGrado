@@ -4,7 +4,7 @@ Muestra:
   - Gráfico de barras de importancia de características del modelo (arriba derecha)
   - Tabla de alertas pendientes de revisión (con detalle de cada alerta)
   - Tabla de flujos correspondientes a esas alertas (con detalle de cada flujo)
-  - Distribución de ataques por severidad
+  - Distribución de alertas por severidad
 """
 
 import streamlit as st
@@ -105,7 +105,7 @@ def mostrar_detalle_resultado(id_resultado):
     c2, c3 = st.columns([2.5,2])
 
     with c2:
-        st.metric("Confianza", f"{float(detalle.get('confianza', 0)):.1%}")
+        st.metric("Confianza", f"{float(detalle.get('confianza', 0)):.2%}")
 
     with c3:
         baja = detalle.get("baja_confianza")
@@ -163,17 +163,18 @@ def render():
     with col_flujos:
         st.markdown(
             '<p style="font-family:IBM Plex Mono,monospace;font-size:0.7rem; letter-spacing:0.12em;color:#5a6478;text-transform:uppercase;'
-            'margin-bottom:0.6rem">Flujos correspondientes a los ataques pendientes de revisión</p>', unsafe_allow_html=True
+            'margin-bottom:0.6rem">Flujos correspondientes a las alertas pendientes de revisión</p>', unsafe_allow_html=True
         )
 
         with st.expander("Filtros de flujos", expanded=False):
-            fc1, fc2, fc3, fc4 = st.columns(4)
-
+            fc1, fc2 = st.columns(2)
             f_id_flujo = fc1.number_input("ID flujo", min_value=1, step=1, value=None, placeholder="ID", key="tk_id_flujo")
             f_id_lote = fc2.text_input("ID lote", key="tk_id_lote")
+
+            fc3, fc4 =  st.columns(2)
             f_fecha_desde = fc3.text_input("Desde (YYYY-MM-DD HH:MM:SS)", key="tk_desde")
             f_fecha_hasta = fc4.text_input("Hasta (YYYY-MM-DD HH:MM:SS)", key="tk_hasta")
-
+            
             filtros_actuales = (f_id_flujo, f_id_lote, f_fecha_desde, f_fecha_hasta)
 
             if "ticketing_filtros_previos" not in st.session_state:
@@ -192,10 +193,10 @@ def render():
             fecha_hasta=f_fecha_hasta.strip() if f_fecha_hasta.strip() else None, offset=offset, db_path=DB_PATH,
         )
 
-        st.caption(f"Página {pagina} — {len(df_flujos)} ataque(s) mostrado(s)")
+        st.caption(f"Página {pagina} — {len(df_flujos)} flujo(s) mostrado(s)")
 
         if df_flujos.empty:
-            st.caption("No hay ataques pendientes de revisión.")
+            st.caption("No hay flujos pendientes de revisión.")
 
         else:
             evento_flujo = st.dataframe(
@@ -208,7 +209,7 @@ def render():
                 }
             )
 
-            st.caption( f"{len(df_flujos)} ataque(s) mostrado(s) — máximo 30 por página")
+            st.caption( f"{len(df_flujos)} flujo(s) mostrado(s) — máximo 30 por página")
 
             filas_sel = evento_flujo.selection.rows
             if filas_sel:
@@ -280,7 +281,7 @@ def render():
 
         else:
             df_vista = df_res.copy()
-            df_vista["confianza"] = df_vista["confianza"].apply(lambda v: (f"{float(v):.1%}" if pd.notna(v) else "—"))
+            df_vista["confianza"] = df_vista["confianza"].apply(lambda v: (f"{float(v):.2%}" if pd.notna(v) else "—"))
             
             if "tabla_ticketing_version" not in st.session_state:
                 st.session_state.tabla_ticketing_version = 0
@@ -314,7 +315,7 @@ def render():
 
             st.markdown(
                 '<p style="font-family:IBM Plex Mono,monospace;font-size:0.68rem; letter-spacing:0.12em;color:#5a6478;text-transform:uppercase;'
-                'margin-bottom:0.5rem">Distribución de ataques por severidad</p>', unsafe_allow_html=True
+                'margin-bottom:0.5rem">Distribución de alertas por severidad</p>', unsafe_allow_html=True
             )
 
             df_sev = consultas.conteo_por_severidad(db_path=DB_PATH)
