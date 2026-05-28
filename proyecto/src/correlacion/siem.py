@@ -269,7 +269,7 @@ def correlacionar_alertas(df_predicciones, df_limpio):
 
         if fila["baja_confianza"] == 1:
             if ataque == "BENIGN":
-                puntuacion += 2
+                puntuacion += 1
             else:
                 puntuacion -= 1
 
