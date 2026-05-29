@@ -9,7 +9,7 @@ import joblib
 
 RUTA_BASE = os.path.join(os.path.dirname(__file__), "..", "..", "info_modelo")
 RUTA_BASE = os.path.abspath(RUTA_BASE)
- 
+
 
 cache = {} 
 def cargar(nombre_archivo):
@@ -24,6 +24,17 @@ def cargar(nombre_archivo):
     obj = joblib.load(ruta)
     cache[nombre_archivo] = obj
     return obj
+
+
+def ver_artefactos():
+    """
+    Función para imprimir por pantalla cualquiera de los artefactos, basta con cambiar el nombre del archivo.
+    """
+    data = cargar("umbrales_confianza.pkl")
+    print(data)
+
+if __name__ == "__main__":
+    ver_artefactos()
 
 
 def cargar_modelo():
