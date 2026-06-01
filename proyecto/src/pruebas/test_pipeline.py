@@ -27,21 +27,19 @@ if os.path.exists(DB_PATH):
 # ─────────────────────────────────────────────────────────────────────────────
 # HELPERS
 # ─────────────────────────────────────────────────────────────────────────────
-
 def separador(titulo):
     print(f"\n{'='*60}")
-    print(f"  {titulo}")
+    print(f"{titulo}")
     print('='*60)
 
-def ok(msg):    print(f"  ✓ {msg}")
-def error(msg): print(f"  ✗ ERROR inesperado: {msg}")
-def esperado(msg): print(f"  ✓ Excepción esperada: {msg}")
+def ok(msg): print(f"OK {msg}")
+def error(msg): print(f"KO ERROR inesperado: {msg}")
+def esperado(msg): print(f"OK Excepción esperada: {msg}")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 1. CREAR BASE DE DATOS Y TABLAS
 # ─────────────────────────────────────────────────────────────────────────────
-
 separador("1. CREAR BASE DE DATOS")
 tablas.crear_tablas(DB_PATH)
 
@@ -54,8 +52,7 @@ ok(f"Tabla flujos creada con {len(cols)} columnas (3 metadatos + 24 features)")
 # ─────────────────────────────────────────────────────────────────────────────
 # 2. PARSEO DE FLUJOS — tablas.parsear_flujos()
 # ─────────────────────────────────────────────────────────────────────────────
-
-separador("2. PARSEO — NaN e infinitos")
+separador("2. PARSEO - NaN e infinitos")
 df_nan_inf = pd.DataFrame({col: [1.0, np.nan, np.inf] for col in nombres})
 df_limpio, descartadas, mensaje_descartes = tablas.parsear_flujos(df_nan_inf)
 ok(f"Filas descartadas: {len(descartadas)} | Filas válidas: {len(df_limpio)}")
@@ -63,7 +60,7 @@ for d in descartadas:
     print(f"     fila {d}: descartada por NaN/inf")
 
 
-separador("2. PARSEO — Columnas faltantes → debe fallar")
+separador("2. PARSEO - Columnas faltantes -> debe fallar")
 nombres_sin_flow = [c for c in nombres if c != "Flow Duration"]
 df_incompleto = pd.DataFrame({col: [0.1] for col in nombres_sin_flow})
 try:
@@ -73,14 +70,14 @@ except ValueError as e:
     esperado(e)
 
 
-separador("2. PARSEO — Columnas extra → se descartan silenciosamente")
+separador("2. PARSEO - Columnas extra -> se descartan silenciosamente")
 df_extra = pd.DataFrame({col: [1.0] for col in nombres})
 df_extra["columna_extra"] = 999.0
 df_limpio_extra, _, _ = tablas.parsear_flujos(df_extra)
 ok(f"Columnas tras parseo: {list(df_limpio_extra.columns)}")
 
 
-separador("2. PARSEO — Columnas desordenadas → se reordenan silenciosamente")
+separador("2. PARSEO - Columnas desordenadas -> se reordenan silenciosamente")
 df_desordenado = pd.DataFrame({col: [1.0] for col in nombres[::-1]})
 df_limpio_orden, _, _ = tablas.parsear_flujos(df_desordenado)
 ok(f"Primeras columnas tras parseo: {list(df_limpio_orden.columns[:3])}")
@@ -89,14 +86,13 @@ ok(f"Primeras columnas tras parseo: {list(df_limpio_orden.columns[:3])}")
 # ─────────────────────────────────────────────────────────────────────────────
 # 3. INSERCIÓN EN BD — tablas.insertar_flujos()
 # ─────────────────────────────────────────────────────────────────────────────
-
-separador("3. INSERCIÓN — Lote normal (3 flujos)")
+separador("3. INSERCIÓN - Lote normal (3 flujos)")
 df_base = pd.DataFrame({col: [0.1, 5000.0, 0.0001] for col in nombres})
 ids_flujo = tablas.insertar_flujos(df_base, "lote_001", db_path=DB_PATH)
 ok(f"IDs generados: {ids_flujo}")
 
 
-separador("3. INSERCIÓN — Lote grande (150 flujos)")
+separador("3. INSERCIÓN - Lote grande (150 flujos)")
 df_big = pd.concat([df_base] * 50, ignore_index=True)
 ids_big = tablas.insertar_flujos(df_big, "lote_big", db_path=DB_PATH)
 ok(f"Flujos insertados: {len(ids_big)} | IDs: {ids_big[0]}...{ids_big[-1]}")
@@ -105,26 +101,25 @@ ok(f"Flujos insertados: {len(ids_big)} | IDs: {ids_big[0]}...{ids_big[-1]}")
 # ─────────────────────────────────────────────────────────────────────────────
 # 4. PREDICCIÓN — ids.analizar_flujos()
 # ─────────────────────────────────────────────────────────────────────────────
-
-separador("4. IDS — Lote normal")
+separador("4. IDS - Lote normal")
 df_pred = ids.analizar_flujos(df_base, "lote_001", ids_flujo)
 print(df_pred.to_string(index=False))
 
 
-separador("4. IDS — Lote desordenado → se reordena y predice")
+separador("4. IDS - Lote desordenado -> se reordena y predice")
 ids_orden = tablas.insertar_flujos(df_desordenado, "lote_orden", db_path=DB_PATH)
 df_pred_orden = ids.analizar_flujos(df_desordenado, "lote_orden", ids_orden)
 ok(f"Predicciones: {list(df_pred_orden['prediccion'])}")
 
 
-separador("4. IDS — Strings como datos → se convierten a float y predice")
+separador("4. IDS - Strings como datos -> se convierten a float y predice")
 df_str = df_base.astype(str)
 ids_str = tablas.insertar_flujos(df_str, "lote_str", db_path=DB_PATH)
 df_pred_str = ids.analizar_flujos(df_str, "lote_str", ids_str)
 ok(f"Predicciones: {list(df_pred_str['prediccion'])}")
 
 
-separador("4. IDS — ids_flujo con longitud incorrecta → debe fallar")
+separador("4. IDS - ids_flujo con longitud incorrecta -> debe fallar")
 try:
     ids.analizar_flujos(df_base, "lote_001", [1, 2])
     error("No lanzó excepción")
@@ -132,7 +127,7 @@ except ValueError as e:
     esperado(e)
 
 
-separador("4. IDS — Columnas faltantes → debe fallar")
+separador("4. IDS - Columnas faltantes -> debe fallar")
 df_sin_col = df_base.drop(columns=["Flow Duration"])
 try:
     ids.analizar_flujos(df_sin_col, "lote_001", ids_flujo)
@@ -141,7 +136,7 @@ except ValueError as e:
     esperado(e)
 
 
-separador("4. IDS — Lote vacío → debe fallar")
+separador("4. IDS - Lote vacío -> debe fallar")
 df_vacio = pd.DataFrame(columns=nombres)
 try:
     ids.analizar_flujos(df_vacio, "lote_vacio", [])
@@ -150,7 +145,7 @@ except ValueError as e:
     esperado(e)
 
 
-separador("4. IDS — Lote grande (900 flujos)")
+separador("4. IDS - Lote grande (150 flujos)")
 df_pred_big = ids.analizar_flujos(df_big, "lote_big", ids_big)
 ok(f"Flujos predichos: {len(df_pred_big)}")
 print(df_pred_big.head(3).to_string(index=False))
@@ -160,8 +155,7 @@ print("  ...")
 # ─────────────────────────────────────────────────────────────────────────────
 # 5. DATOS REALES
 # ─────────────────────────────────────────────────────────────────────────────
-
-separador("5. DATOS REALES — 6 flujos etiquetados")
+separador("5. DATOS REALES - 7 flujos etiquetados")
 
 ETIQUETAS_REALES = ["BENIGN", "DDoS", "SSH-Patator", "BENIGN", "Web Attack XSS", "Bot", "Web Attack Sql Injection"]
 
@@ -187,33 +181,30 @@ print(df_pred_real[["id_flujo", "prediccion", "etiqueta_real", "correcto", "conf
 aciertos = df_pred_real["correcto"].sum()
 ok(f"Aciertos: {aciertos}/{len(df_pred_real)}")
 
+
 # ─────────────────────────────────────────────────────────────────────────────
 # 6. SIEM 
 # ─────────────────────────────────────────────────────────────────────────────
-df_pred_siem = df_pred_real[[
-    "id_flujo", "id_lote", "prediccion", "confianza", "baja_confianza"
-]].copy()
+separador("6. Correlación SIEM para los DATOS REALES - 7 flujos etiquetados")
+
+df_pred_siem = df_pred_real[["id_flujo", "id_lote", "prediccion", "confianza", "baja_confianza"]].copy()
 
 df_resultado = siem.correlacionar_alertas(df_pred_siem, df_real)
 
 print(f"  {'ID':>4}  {'Predicción':<25} {'Severidad':<8}  Recomendación (primeros 60 chars)")
-print(f"  {'-'*110}")
 
 for _, fila in df_resultado.iterrows():
     rec = fila["recomendacion"][:60] + "..."
     print(f"  {fila['id_flujo']:>4}  {fila['prediccion']:<25} {fila['severidad']:<8}  {rec}")
 
-tablas.insertar_resultados(
-    df_resultado,
-    db_path=DB_PATH
-)
+tablas.insertar_resultados(df_resultado, db_path=DB_PATH)
 
 ok("Resultados insertados correctamente en SQLite")
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 7. COMPROBACIÓN DE TABLAS SQLITE
 # ─────────────────────────────────────────────────────────────────────────────
-
 separador("7. COMPROBACIÓN SQLITE")
 
 import sqlite3

@@ -113,11 +113,33 @@ def mostrar_detalle_resultado(id_resultado):
         st.metric("Baja confianza", texto_baja)
 
     recomendacion = detalle.get("recomendacion")
+    colores = {"CRITICA":"#ff3b3b", "ALTA":"#ff7b00", "MEDIA":"#e0c200", "BAJA":"#4a9e6b"}
+    severidad = detalle.get("severidad", "INFO")    
+    
+    texto_subtitulo = ""
+    texto_caja = "—"
+
+    if recomendacion:
+        if " - " in recomendacion:
+            partes = recomendacion.split(" - ", 1)
+            texto_caja = partes[0].strip()
+            texto_subtitulo = partes[1].strip()
+        else:
+            texto_caja = recomendacion.strip()
+
+    color_subtitulo = colores.get(severidad, "#c8cdd8")
+
+    html_subtitulo = ""
+    if texto_subtitulo:
+        html_subtitulo = f' <span style="font-family:IBM Plex Mono,monospace;font-size:0.72rem;color:{color_subtitulo};margin-left:0.8rem;text-transform:none;">— {texto_subtitulo}</span>'
+
     st.markdown(
-        f'<div style="margin-top:1rem"> <span style="font-family:IBM Plex Mono,monospace;'
-        f'font-size:0.72rem;color:#5a6478;letter-spacing:0.08em; text-transform:uppercase">Recomendación</span>'
-        f'<div style="margin-top:0.35rem;font-size:0.82rem; color:#c8cdd8;padding:0.7rem 0.9rem;'
-        f'background:#161921;border:1px solid #2a2d35; border-radius:4px">{recomendacion if recomendacion else "—"}</div>'
+        f'<div style="margin-top:1rem">'
+        f'  <div style="display:flex; align-items:center;">'
+        f'    <span style="font-family:IBM Plex Mono,monospace;font-size:0.72rem;color:#5a6478;letter-spacing:0.08em;text-transform:uppercase">Recomendación</span>'
+        f'    {html_subtitulo}'
+        f'  </div>'
+        f'  <div style="margin-top:0.35rem;font-size:0.82rem;color:#c8cdd8;padding:0.7rem 0.9rem;background:#161921;border:1px solid #2a2d35;border-radius:4px">{texto_caja}</div>'
         f'</div>', unsafe_allow_html=True
     )
 
