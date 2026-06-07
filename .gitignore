@@ -4,6 +4,12 @@ IDS2017_limpio.csv
 Data.csv
 Wednesday-workingHours.pcap_ISCX.csv
 Tuesday-WorkingHours.pcap_ISCX.csv
+ids2018_jueves_infiltration.csv
+ids2018_miercoles_FTPySSH.csv
+ids2018_viernes_bot.csv
+ids2018_viernes_DoSSlowHTTPyHulk.csv
+ids2018_viernes_DoSSlowlorisyGoldenEye.csv
+ids2018_viernes_SQLinjection_WebBF_WebXSS.csv
 modelo_random_forest.pkl
 __pycache__/
 *.pyc
