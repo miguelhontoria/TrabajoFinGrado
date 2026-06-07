@@ -11,15 +11,8 @@ for a in archivos:
     print(" -", os.path.basename(a))
 
 dfs = []
-
 for archivo in archivos:
-    df = pd.read_csv(
-        archivo,
-        dtype=str,               
-        keep_default_na=False,  
-        na_values=[]           
-    )
-    
+    df = pd.read_csv(archivo, dtype=str, keep_default_na=False, na_values=[])
     df.columns = df.columns.str.strip()
     dfs.append(df)
 
